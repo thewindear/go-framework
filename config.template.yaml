@@ -1,0 +1,61 @@
+web:
+  env: "dev"
+  serverAddr: ":8080"
+  appName: "my-api"
+  domainName: "domain-name.com"
+  maxConcurrency: 10000
+  requestLimiter:
+    max: 10
+    expiration: 300
+  requestID:
+    headerName: "requestId"
+  requestLog:
+    fields:
+      - "method"
+      - "path"
+      - "url"
+      - "latency"
+      - "status"
+      - "error"
+      - "query"
+      - "queryParams"
+  ctxFields:
+    - requestId
+
+mysql:
+  host: "localhost"
+  port: 3306
+  username: "root"
+  password: "Kb7DPGVY98Dv64S97M73gW7GKZjCusje"
+  database: "test"
+  params: "charset=utf8mb4&parseTime=True&loc=Local"
+  Idle: 20
+  idleLeftTime: 1000
+  maxConn: 100
+  leftTime: 800
+  log: true
+  logLevel: "info"
+
+redis:
+  host: "localhost"
+  port: 6379
+  username: ""
+  password: ""
+  DB: 0
+
+log:
+  level: "info"
+  fileName: ""
+  maxSize: 50
+  maxAge: 10
+  maxBackups: 5
+  compress: false
+
+keys:
+  password: 40U3MWRxR7QP
+  token: E3wRkiC0D5LN
+
+clientKeys:
+  github:
+    clientId: afcbad44b4686623123e
+    clientSecret: 74a44b1cae9f39e9c9acb3f83fc461f1382bdcd7
