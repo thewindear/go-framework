@@ -2,7 +2,6 @@ package test
 
 import (
     goWebFramework "github.com/thewindear/go-web-framework"
-    "github.com/thewindear/go-web-framework/etc"
     "testing"
 )
 
@@ -21,20 +20,5 @@ func TestFramework(t *testing.T) {
         t.Fatal(err)
     } else {
         framework.Run()
-    }
-}
-
-type ExtendCfg struct {
-    Username string `yaml:"username"`
-    etc.Cfg  `yaml:"framework"`
-}
-
-func TestExtendCfg(t *testing.T) {
-    var extendCfg ExtendCfg
-    err := goWebFramework.InitCfg("../config.template.yaml", &extendCfg)
-    if err != nil {
-        t.Fatal(err)
-    } else {
-        t.Log(extendCfg.Framework)
     }
 }

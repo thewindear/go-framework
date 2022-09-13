@@ -1,13 +1,13 @@
 package test
 
 import (
-    "github.com/thewindear/go-web-framework/web"
+    "github.com/thewindear/go-web-framework/log"
     "go.uber.org/zap"
     "testing"
 )
 
 func TestLog(t *testing.T) {
-    log := web.NewLog(cfg.Framework)
-    log.Info("hello world", zap.String("username", "root"))
-    log.Error("abcd")
+    log2 := log.NewLog(cfg.Framework)
+    log2.Info("hello world", zap.String("username", "root"))
+    log2.Error("abcd")
 }

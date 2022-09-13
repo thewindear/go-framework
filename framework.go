@@ -7,6 +7,7 @@ import (
     "github.com/gofiber/fiber/v2"
     "github.com/thewindear/go-web-framework/dao"
     "github.com/thewindear/go-web-framework/etc"
+    log2 "github.com/thewindear/go-web-framework/log"
     "github.com/thewindear/go-web-framework/web"
     "go.uber.org/zap"
     "gopkg.in/yaml.v3"
@@ -58,7 +59,7 @@ func DefaultInitCfg(cfgFile string) (*etc.Cfg, error) {
     return &cfg, nil
 }
 
-func InitCfg[T interface{}](cfgFile string, obj T) error {
+func InitCfg[T any](cfgFile string, obj T) error {
     content, err := os.ReadFile(cfgFile)
     if err != nil {
         return fmt.Errorf("open config file fialure: %s", err)
@@ -72,10 +73,12 @@ func InitCfg[T interface{}](cfgFile string, obj T) error {
 func NewFramework(cfgFile string, cfg *etc.Framework) (*Framework, error) {
     var err error
     if cfg == nil {
-        err = InitCfg(cfgFile, &cfg)
+        _cfg := &etc.Cfg{}
+        err = InitCfg(cfgFile, _cfg)
         if err != nil {
             return nil, err
         }
+        cfg = _cfg.Framework
     }
     
     if cfg.Web == nil {
@@ -83,7 +86,7 @@ func NewFramework(cfgFile string, cfg *etc.Framework) (*Framework, error) {
     }
     framework := new(Framework)
     if cfg.Log != nil {
-        framework.Log = web.NewLog(cfg)
+        framework.Log = log2.NewLog(cfg)
     }
     if cfg.Mysql != nil {
         if framework.Mysql, err = dao.NewMysql(cfg, framework.Log); err != nil {
