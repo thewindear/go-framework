@@ -20,7 +20,7 @@ func (im Blog) TableName() string {
 }
 
 func TestNewMysql(t *testing.T) {
-    db, err := dao.NewMysql(cfg, web.NewLog(cfg))
+    db, err := dao.NewMysql(cfg.Framework, web.NewLog(cfg.Framework))
     if err != nil {
         TLog.Error("connect db error", zap.String("DBError", err.Error()))
     }

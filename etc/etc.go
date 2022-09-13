@@ -1,6 +1,10 @@
 package etc
 
 type Cfg struct {
+    Framework *Framework `yaml:"framework"`
+}
+
+type Framework struct {
     Web        *WebConfig            `yaml:"web"`
     Mysql      *MysqlConfig          `yaml:"mysql"`
     Redis      *RedisConfig          `yaml:"redis"`
@@ -16,17 +20,17 @@ type ClientKey struct {
 }
 
 func (im *Cfg) KeyExists(name string) bool {
-    _, ok := im.Keys[name]
+    _, ok := im.Framework.Keys[name]
     return ok
 }
 
 func (im *Cfg) ClientKeyExists(name string) bool {
-    _, ok := im.ClientKeys[name]
+    _, ok := im.Framework.ClientKeys[name]
     return ok
 }
 
 func (im *Cfg) GetClientKeysByName(name string) *ClientKey {
-    if key, ok := im.ClientKeys[name]; ok {
+    if key, ok := im.Framework.ClientKeys[name]; ok {
         return key
     }
     return nil

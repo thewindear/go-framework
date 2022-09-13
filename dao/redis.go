@@ -5,7 +5,7 @@ import (
     "github.com/thewindear/go-web-framework/etc"
 )
 
-func NewRedis(cfg *etc.Cfg) (*redis.Client, error) {
+func NewRedis(cfg *etc.Framework) (*redis.Client, error) {
     option := &redis.Options{
         Addr: cfg.Redis.GenAddr(),
         DB:   cfg.Redis.DB,

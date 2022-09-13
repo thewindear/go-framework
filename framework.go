@@ -16,11 +16,15 @@ import (
 )
 
 type Framework struct {
-    Cfg   *etc.Cfg
+    Cfg   *etc.Framework
     Web   *fiber.App
     Mysql *gorm.DB
     Rdb   *redis.Client
     Log   *zap.Logger
+}
+
+func (im *Framework) SetRouter(routeHandle func(app *fiber.App)) {
+    routeHandle(im.Web)
 }
 
 func (im *Framework) Run() {
@@ -45,23 +49,35 @@ func (im *Framework) shutdown() {
     log.Println("bye bye server shutdown...")
 }
 
-func IniCfg(cfgFile string) (*etc.Cfg, error) {
-    content, err := os.ReadFile(cfgFile)
-    if err != nil {
-        return nil, fmt.Errorf("open config file fialure: %s", err)
-    }
+func DefaultInitCfg(cfgFile string) (*etc.Cfg, error) {
     var cfg etc.Cfg
-    if err = yaml.Unmarshal(content, &cfg); err != nil {
-        return nil, fmt.Errorf("initialize config failure: %s", err)
+    err := InitCfg(cfgFile, &cfg)
+    if err != nil {
+        return nil, err
     }
     return &cfg, nil
 }
 
-func NewFramework(cfgFile string) (*Framework, error) {
-    cfg, err := IniCfg(cfgFile)
+func InitCfg[T interface{}](cfgFile string, obj T) error {
+    content, err := os.ReadFile(cfgFile)
     if err != nil {
-        return nil, err
+        return fmt.Errorf("open config file fialure: %s", err)
     }
+    if err = yaml.Unmarshal(content, &obj); err != nil {
+        return fmt.Errorf("initialize config failure: %s", err)
+    }
+    return nil
+}
+
+func NewFramework(cfgFile string, cfg *etc.Framework) (*Framework, error) {
+    var err error
+    if cfg == nil {
+        err = InitCfg(cfgFile, &cfg)
+        if err != nil {
+            return nil, err
+        }
+    }
+    
     if cfg.Web == nil {
         return nil, errors.New("web config is empty")
     }

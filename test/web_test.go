@@ -7,6 +7,6 @@ import (
 )
 
 func TestNewWeb(t *testing.T) {
-    web, _ := web2.NewWeb(cfg, web2.NewLog(cfg))
-    log.Fatalln(web.Listen(cfg.Web.ServerAddr))
+    web, _ := web2.NewWeb(cfg.Framework, web2.NewLog(cfg.Framework))
+    log.Fatalln(web.Listen(cfg.Framework.Web.ServerAddr))
 }

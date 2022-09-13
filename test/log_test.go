@@ -7,7 +7,7 @@ import (
 )
 
 func TestLog(t *testing.T) {
-    log := web.NewLog(cfg)
+    log := web.NewLog(cfg.Framework)
     log.Info("hello world", zap.String("username", "root"))
     log.Error("abcd")
 }

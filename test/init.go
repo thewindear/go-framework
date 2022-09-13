@@ -6,12 +6,14 @@ import (
 )
 
 var cfg = &etc.Cfg{
-    Log:   logCfg,
-    Mysql: mysqlCfg,
-    Web:   webCfg,
+    Framework: &etc.Framework{
+        Log:   logCfg,
+        Mysql: mysqlCfg,
+        Web:   webCfg,
+    },
 }
 
-var TLog = web.NewLog(cfg)
+var TLog = web.NewLog(cfg.Framework)
 
 var logCfg = &etc.LogConfig{
     Level:      "info",

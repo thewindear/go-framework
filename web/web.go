@@ -10,7 +10,7 @@ import (
     "time"
 )
 
-func NewWeb(cfg *etc.Cfg, logger *zap.Logger) (*fiber.App, error) {
+func NewWeb(cfg *etc.Framework, logger *zap.Logger) (*fiber.App, error) {
     fiberConfig := fiber.Config{
         ServerHeader: cfg.Web.GetServerHead(),
         Concurrency:  cfg.Web.MaxConcurrency,

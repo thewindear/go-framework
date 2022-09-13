@@ -10,7 +10,7 @@ import (
     "time"
 )
 
-func NewLog(cfg *etc.Cfg) *zap.Logger {
+func NewLog(cfg *etc.Framework) *zap.Logger {
     encoderConfig := zapcore.EncoderConfig{
         MessageKey:     "msg",
         LevelKey:       "level",

@@ -8,7 +8,7 @@ import (
     "time"
 )
 
-func NewMysql(cfg *etc.Cfg, log *zap.Logger) (*gorm.DB, error) {
+func NewMysql(cfg *etc.Framework, log *zap.Logger) (*gorm.DB, error) {
     gormCfg := &gorm.Config{
         PrepareStmt: true,
         QueryFields: true,
