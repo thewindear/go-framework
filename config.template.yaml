@@ -9,9 +9,10 @@ framework:
       max: 10
       expiration: 300
     requestID:
-      headerName: "requestId"
+      headerName: "X-Request-ID"
     requestLog:
       fields:
+        - "requestId"
         - "method"
         - "path"
         - "url"

@@ -1,7 +1,10 @@
 package test
 
 import (
+    "github.com/gofiber/fiber/v2"
     goWebFramework "github.com/thewindear/go-web-framework"
+    "github.com/thewindear/go-web-framework/etc"
+    "log"
     "testing"
 )
 
@@ -19,6 +22,23 @@ func TestFramework(t *testing.T) {
     if err != nil {
         t.Fatal(err)
     } else {
+        framework.SetRouter(func(app *fiber.App) {
+            app.Get("/", func(ctx *fiber.Ctx) error {
+                framework.GetLog(ctx.Context()).Info("hello world")
+                return ctx.Send([]byte("hello world"))
+            })
+        })
         framework.Run()
     }
+}
+
+type CustomConfig struct {
+    Username      string `json:"username"`
+    etc.Framework `json:"framework"`
+}
+
+func TestCustomConfig(t *testing.T) {
+    var customConfig CustomConfig
+    _ = goWebFramework.InitCfg[CustomConfig]("../config.template.yaml", &customConfig)
+    log.Println(customConfig)
 }

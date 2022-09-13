@@ -1,6 +1,7 @@
 package go_web_framework
 
 import (
+    "context"
     "errors"
     "fmt"
     "github.com/go-redis/redis/v8"
@@ -18,33 +19,55 @@ import (
 
 type Framework struct {
     Cfg   *etc.Framework
-    Web   *fiber.App
-    Mysql *gorm.DB
-    Rdb   *redis.Client
-    Log   *zap.Logger
+    web   *fiber.App
+    mysql *gorm.DB
+    rdb   *redis.Client
+    log   *zap.Logger
+}
+
+func (im *Framework) GetDB(ctx context.Context) *gorm.DB {
+    return im.mysql.WithContext(ctx)
+}
+
+func (im *Framework) GetLog(ctx context.Context) *zap.Logger {
+    if im.Cfg.Web.CtxFields != nil && len(im.Cfg.Web.CtxFields) > 0 {
+        var fields []zap.Field
+        for _, key := range im.Cfg.Web.CtxFields {
+            val := ctx.Value(key)
+            if val != nil {
+                fields = append(fields, zap.String(key, fmt.Sprintf("%s", val)))
+            }
+        }
+        return im.log.With(fields...)
+    }
+    return im.log
+}
+
+func (im *Framework) GetRdb(ctx context.Context) *redis.Client {
+    return im.rdb.WithContext(ctx)
 }
 
 func (im *Framework) SetRouter(routeHandle func(app *fiber.App)) {
-    routeHandle(im.Web)
+    routeHandle(im.web)
 }
 
 func (im *Framework) Run() {
     defer im.shutdown()
-    log.Fatalf("listen server failure: %s", im.Web.Listen(im.Cfg.Web.ServerAddr))
+    log.Fatalf("listen server failure: %s", im.web.Listen(im.Cfg.Web.ServerAddr))
 }
 
 func (im *Framework) shutdown() {
-    sqlDB, _ := im.Mysql.DB()
+    sqlDB, _ := im.mysql.DB()
     var err error
     if err = sqlDB.Close(); err != nil {
-        im.Log.Error("close mysql error: " + err.Error())
+        im.log.Error("close mysql error: " + err.Error())
     }
-    if err = im.Rdb.Close(); err != nil {
-        im.Log.Error("close redis error: " + err.Error())
+    if err = im.rdb.Close(); err != nil {
+        im.log.Error("close redis error: " + err.Error())
     }
     if im.Cfg.Log != nil && im.Cfg.Log.FileName != "" {
-        if err = im.Log.Sync(); err != nil {
-            im.Log.Error("sync log file error: " + err.Error())
+        if err = im.log.Sync(); err != nil {
+            im.log.Error("sync log file error: " + err.Error())
         }
     }
     log.Println("bye bye server shutdown...")
@@ -59,7 +82,7 @@ func DefaultInitCfg(cfgFile string) (*etc.Cfg, error) {
     return &cfg, nil
 }
 
-func InitCfg[T any](cfgFile string, obj T) error {
+func InitCfg[T any](cfgFile string, obj *T) error {
     content, err := os.ReadFile(cfgFile)
     if err != nil {
         return fmt.Errorf("open config file fialure: %s", err)
@@ -86,19 +109,19 @@ func NewFramework(cfgFile string, cfg *etc.Framework) (*Framework, error) {
     }
     framework := new(Framework)
     if cfg.Log != nil {
-        framework.Log = log2.NewLog(cfg)
+        framework.log = log2.NewLog(cfg)
     }
     if cfg.Mysql != nil {
-        if framework.Mysql, err = dao.NewMysql(cfg, framework.Log); err != nil {
+        if framework.mysql, err = dao.NewMysql(cfg, framework.log); err != nil {
             return nil, err
         }
     }
     if cfg.Redis != nil {
-        if framework.Rdb, err = dao.NewRedis(cfg); err != nil {
+        if framework.rdb, err = dao.NewRedis(cfg); err != nil {
             return nil, err
         }
     }
-    if framework.Web, err = web.NewWeb(cfg, framework.Log); err != nil {
+    if framework.web, err = web.NewWeb(cfg, framework.log); err != nil {
         return nil, err
     }
     framework.Cfg = cfg
