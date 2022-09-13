@@ -4,8 +4,10 @@ import (
     "github.com/gofiber/fiber/v2"
     goWebFramework "github.com/thewindear/go-web-framework"
     "github.com/thewindear/go-web-framework/etc"
+    "go.uber.org/zap"
     "log"
     "testing"
+    "time"
 )
 
 func TestInitCfg(t *testing.T) {
@@ -24,8 +26,15 @@ func TestFramework(t *testing.T) {
     } else {
         framework.SetRouter(func(app *fiber.App) {
             app.Get("/", func(ctx *fiber.Ctx) error {
-                framework.GetLog(ctx.Context()).Info("hello world")
-                return ctx.Send([]byte("hello world"))
+                l := framework.GetLog(ctx.Context())
+                l.Info("hello world")
+                if ctx.Query("key", "") != "" {
+                    time.Sleep(time.Second * 3)
+                }
+                var blog Blog
+                framework.GetDB(ctx.Context()).Model(&blog).Where("id = 4").First(&blog)
+                l.Info("blog info ", zap.String("title", blog.Title))
+                return ctx.JSON(blog)
             })
         })
         framework.Run()
