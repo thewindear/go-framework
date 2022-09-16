@@ -17,7 +17,7 @@ import (
     "os"
 )
 
-func NewDefaultFrameworkCtx(ctx context.Context, framework *Framework) SvcContext {
+func NewDefaultSvcContext(ctx context.Context, framework *Framework) SvcContext {
     return SvcContext{Ctx: ctx, Components: framework.GetComponents()}
 }
 
