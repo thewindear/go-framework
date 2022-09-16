@@ -54,10 +54,10 @@ framework:
     compress: false
 
   keys:
-    password: 40U3MWRxR7QP
-    token: E3wRkiC0D5LN
+    password: password salt key
+    token: token salt key
 
   clientKeys:
     github:
-      clientId: afcbad44b4686623123e
-      clientSecret: 74a44b1cae9f39e9c9acb3f83fc461f1382bdcd7
+      clientId: github client id
+      clientSecret: github secret
