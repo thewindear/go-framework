@@ -26,13 +26,13 @@ func TestFramework(t *testing.T) {
     } else {
         framework.SetRouter(func(app *fiber.App) {
             app.Get("/", func(ctx *fiber.Ctx) error {
-                l := framework.GetLog(ctx.Context())
+                l := framework.GetLogWithContext(ctx.Context())
                 l.Info("hello world")
                 if ctx.Query("key", "") != "" {
                     time.Sleep(time.Second * 3)
                 }
                 var blog Blog
-                framework.GetDB(ctx.Context()).Model(&blog).Where("id = 4").First(&blog)
+                framework.GetDBWithContext(ctx.Context()).Model(&blog).Where("id = 4").First(&blog)
                 l.Info("blog info ", zap.String("title", blog.Title))
                 return ctx.JSON(blog)
             })
