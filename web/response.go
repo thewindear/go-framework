@@ -38,11 +38,11 @@ func (im *RespError) Error() string {
 }
 
 // BadRequest 解析参数失败
-func BadRequest(oriErr error) error {
+func BadRequest(oriErr error, message string) error {
     return &RespError{
         Resp: Resp{
             HttpStatus: fiber.ErrBadRequest.Code,
-            Message:    fiber.ErrBadRequest.Message,
+            Message:    message,
         },
         OriError: oriErr,
     }
@@ -53,10 +53,28 @@ func ValidationFailed(field []*InvalidField) error {
     return &RespError{
         Resp: Resp{
             HttpStatus: fiber.ErrUnprocessableEntity.Code,
-            Message:    fiber.ErrUnprocessableEntity.Message,
+            Message:    "表单输入有误",
         },
-        OriError: nil,
-        Errors:   field,
+        Errors: field,
+    }
+}
+
+func Unauthorized(message string) error {
+    return &RespError{
+        Resp: Resp{
+            HttpStatus: fiber.StatusUnauthorized,
+            Message:    message,
+        },
+    }
+}
+
+func Error(oriErr error) *RespError {
+    return &RespError{
+        Resp: Resp{
+            HttpStatus: fiber.ErrInternalServerError.Code,
+            Message:    "服务异常,请稍后再试",
+        },
+        OriError: oriErr,
     }
 }
 
@@ -67,25 +85,13 @@ func DefaultNotFound() error {
 
 func NotFound(message string) error {
     if message == "" {
-        message = fiber.ErrNotFound.Message
+        message = "资源不存在"
     }
     return &RespError{
         Resp: Resp{
             HttpStatus: fiber.ErrNotFound.Code,
             Message:    message,
         },
-        OriError: fiber.ErrNotFound,
-    }
-}
-
-func Error(oriErr error) error {
-    return &RespError{
-        Resp: Resp{
-            HttpStatus: fiber.ErrInternalServerError.Code,
-            Message:    fiber.ErrInternalServerError.Message,
-        },
-        OriError: oriErr,
-        Errors:   nil,
     }
 }
 

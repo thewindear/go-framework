@@ -6,9 +6,8 @@ import (
     "fmt"
     "github.com/go-redis/redis/v8"
     "github.com/gofiber/fiber/v2"
-    "github.com/thewindear/go-web-framework/dao"
+    "github.com/thewindear/go-web-framework/components"
     "github.com/thewindear/go-web-framework/etc"
-    log2 "github.com/thewindear/go-web-framework/log"
     "github.com/thewindear/go-web-framework/web"
     "go.uber.org/zap"
     "gopkg.in/yaml.v3"
@@ -146,15 +145,15 @@ func NewFramework(cfgFile string, cfg *etc.Framework) (*Framework, error) {
     }
     framework := new(Framework)
     if cfg.Log != nil {
-        framework.log = log2.NewLog(cfg)
+        framework.log = components.NewLog(cfg)
     }
     if cfg.Mysql != nil {
-        if framework.mysql, err = dao.NewMysql(cfg, framework.log); err != nil {
+        if framework.mysql, err = components.NewMysql(cfg, framework.log); err != nil {
             return nil, err
         }
     }
     if cfg.Redis != nil {
-        if framework.rdb, err = dao.NewRedis(cfg); err != nil {
+        if framework.rdb, err = components.NewRedis(cfg); err != nil {
             return nil, err
         }
     }

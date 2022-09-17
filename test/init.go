@@ -1,8 +1,8 @@
 package test
 
 import (
+    "github.com/thewindear/go-web-framework/components"
     "github.com/thewindear/go-web-framework/etc"
-    "github.com/thewindear/go-web-framework/log"
 )
 
 var cfg = &etc.Cfg{
@@ -13,7 +13,7 @@ var cfg = &etc.Cfg{
     },
 }
 
-var TLog = log.NewLog(cfg.Framework)
+var TLog = components.NewLog(cfg.Framework)
 
 var logCfg = &etc.LogConfig{
     Level:      "info",

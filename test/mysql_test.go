@@ -2,8 +2,7 @@ package test
 
 import (
     "context"
-    "github.com/thewindear/go-web-framework/dao"
-    "github.com/thewindear/go-web-framework/log"
+    "github.com/thewindear/go-web-framework/components"
     "go.uber.org/zap"
     "testing"
 )
@@ -20,7 +19,7 @@ func (im Blog) TableName() string {
 }
 
 func TestNewMysql(t *testing.T) {
-    db, err := dao.NewMysql(cfg.Framework, log.NewLog(cfg.Framework))
+    db, err := components.NewMysql(cfg.Framework, components.NewLog(cfg.Framework))
     if err != nil {
         TLog.Error("connect db error", zap.String("DBError", err.Error()))
     }

@@ -1,4 +1,4 @@
-package dao
+package components
 
 import (
     "context"
