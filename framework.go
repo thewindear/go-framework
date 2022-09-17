@@ -133,7 +133,7 @@ func NewFramework(cfgFile string, cfg *etc.Framework) (*Framework, error) {
     var err error
     if cfg == nil {
         _cfg := &etc.Cfg{}
-        err = InitCfg(cfgFile, _cfg)
+        err = InitCfg[etc.Cfg](cfgFile, _cfg)
         if err != nil {
             return nil, err
         }
@@ -143,7 +143,7 @@ func NewFramework(cfgFile string, cfg *etc.Framework) (*Framework, error) {
     if cfg.Web == nil {
         return nil, errors.New("web config is empty")
     }
-    framework := new(Framework)
+    framework := &Framework{Components: &Components{}}
     if cfg.Log != nil {
         framework.log = components.NewLog(cfg)
     }
@@ -162,4 +162,21 @@ func NewFramework(cfgFile string, cfg *etc.Framework) (*Framework, error) {
     }
     framework.cfg = cfg
     return framework, nil
+}
+
+func ErrorHandler(components *Components) fiber.ErrorHandler {
+    return func(ctx *fiber.Ctx, err error) error {
+        if err == nil {
+            return nil
+        }
+        var wrapError *web.RespError
+        if tmpErr, ok := err.(*web.RespError); ok {
+            wrapError = tmpErr
+        } else {
+            wrapError = web.Error(tmpErr)
+        }
+        ctxLog := components.GetLogWithContext(ctx.Context())
+        ctxLog.Error("response error", zap.String("error details", wrapError.Error()))
+        return ctx.Status(wrapError.HttpStatus).JSON(wrapError)
+    }
 }

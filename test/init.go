@@ -5,6 +5,17 @@ import (
     "github.com/thewindear/go-web-framework/etc"
 )
 
+type Blog struct {
+    ID     uint   `gorm:"id" json:"ID"`
+    ShopId uint   `gorm:"shop_id" json:"shopId"`
+    Title  string `gorm:"title" json:"title"`
+    Images string `gorm:"images" json:"images"`
+}
+
+func (im Blog) TableName() string {
+    return "tb_blog"
+}
+
 var cfg = &etc.Cfg{
     Framework: &etc.Framework{
         Log:   logCfg,
