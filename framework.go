@@ -16,8 +16,8 @@ import (
     "os"
 )
 
-func NewDefaultSvcContext(ctx context.Context, framework *Framework) SvcContext {
-    return SvcContext{Ctx: ctx, Components: framework.GetComponents()}
+func NewDefaultSvcContext(ctx context.Context, framework *Framework) *SvcContext {
+    return &SvcContext{Ctx: ctx, Components: framework.GetComponents()}
 }
 
 type SvcContext struct {

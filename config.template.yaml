@@ -37,6 +37,7 @@ framework:
     leftTime: 800
     log: true
     logLevel: "info"
+    slowSqlTime: 1
 
   redis:
     host: "localhost"

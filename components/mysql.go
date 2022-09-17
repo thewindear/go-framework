@@ -14,7 +14,7 @@ func NewMysql(cfg *etc.Framework, log *zap.Logger) (*gorm.DB, error) {
         QueryFields: true,
     }
     if cfg.Log != nil && cfg.Mysql.Log {
-        zapGormLog := NewZapGormLog(log, cfg.Log.GetGormLogLevel())
+        zapGormLog := NewZapGormLog(log, cfg.Log.GetGormLogLevel(), cfg.Mysql.SlowSqlTime)
         InitLoggerCtxFields(cfg.Web.CtxFields)
         zapGormLog.SetAsDefault()
         gormCfg.Logger = zapGormLog

@@ -28,11 +28,11 @@ type Logger struct {
     IgnoreRecordNotFoundError bool
 }
 
-func NewZapGormLog(zapLogger *zap.Logger, level gormlogger.LogLevel) *Logger {
+func NewZapGormLog(zapLogger *zap.Logger, level gormlogger.LogLevel, slowSqlTime int) *Logger {
     return &Logger{
         ZapLogger:                 zapLogger,
         LogLevel:                  level,
-        SlowThreshold:             100 * time.Millisecond,
+        SlowThreshold:             time.Duration(slowSqlTime) * time.Second,
         SkipCallerLookup:          false,
         IgnoreRecordNotFoundError: false,
     }

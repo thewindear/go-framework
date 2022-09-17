@@ -17,6 +17,7 @@ type MysqlConfig struct {
     LeftTime     int    `yaml:"leftTime"`
     Log          bool   `yaml:"log"`
     LogLevel     string `yaml:"logLevel"`
+    SlowSqlTime  int    `json:"slowSqlTime"`
 }
 
 func (im *MysqlConfig) GenDSN() string {

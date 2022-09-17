@@ -5,10 +5,23 @@ import (
     goWebFramework "github.com/thewindear/go-web-framework"
     "github.com/thewindear/go-web-framework/etc"
     "go.uber.org/zap"
+    "gorm.io/gorm"
     "log"
     "testing"
-    "time"
 )
+
+type UserService struct {
+    *goWebFramework.SvcContext
+}
+
+func (im UserService) GetBlog() *Blog {
+    var blog Blog
+    if im.DB().Model(&blog).Where("id = 4").First(&blog).Error == gorm.ErrRecordNotFound {
+        return nil
+    }
+    im.Log().Info("blog info ", zap.String("title", blog.Title))
+    return &blog
+}
 
 func TestInitCfg(t *testing.T) {
     c, err := goWebFramework.DefaultInitCfg("../config.template.yaml")
@@ -26,14 +39,11 @@ func TestFramework(t *testing.T) {
     } else {
         framework.SetRouter(func(app *fiber.App) {
             app.Get("/", func(ctx *fiber.Ctx) error {
-                l := framework.GetLogWithContext(ctx.Context())
-                l.Info("hello world")
-                if ctx.Query("key", "") != "" {
-                    time.Sleep(time.Second * 3)
+                userService := &UserService{goWebFramework.NewDefaultSvcContext(ctx.Context(), framework)}
+                blog := userService.GetBlog()
+                if blog == nil {
+                    return ctx.SendStatus(404)
                 }
-                var blog Blog
-                framework.GetDBWithContext(ctx.Context()).Model(&blog).Where("id = 4").First(&blog)
-                l.Info("blog info ", zap.String("title", blog.Title))
                 return ctx.JSON(blog)
             })
         })
