@@ -9,6 +9,14 @@ import (
     "strings"
 )
 
+const (
+    FieldTypeJson   = "json"
+    FieldTypeXML    = "xml"
+    FieldTypeForm   = "form"
+    FieldTypeQuery  = "query"
+    FieldTypeHeader = "header"
+)
+
 type InvalidField struct {
     Field string `json:"field"`
     Tag   string `json:"tag"`
@@ -25,7 +33,27 @@ func init() {
     _ = zhTranslations.RegisterDefaultTranslations(validate, trans)
 }
 
-func ValidateStruct(data interface{}) []*InvalidField {
+func ValidateStructJson(data interface{}) []*InvalidField {
+    return ValidateStruct(data, FieldTypeJson)
+}
+
+func ValidateStructXML(data interface{}) []*InvalidField {
+    return ValidateStruct(data, FieldTypeXML)
+}
+
+func ValidateStructQuery(data interface{}) []*InvalidField {
+    return ValidateStruct(data, FieldTypeQuery)
+}
+
+func ValidateStructHeader(data interface{}) []*InvalidField {
+    return ValidateStruct(data, FieldTypeHeader)
+}
+
+func ValidateStructForm(data interface{}) []*InvalidField {
+    return ValidateStruct(data, FieldTypeForm)
+}
+
+func ValidateStruct(data interface{}, fieldType string) []*InvalidField {
     var errors []*InvalidField
     err := validate.Struct(data)
     elem := reflect.TypeOf(data).Elem()
@@ -38,7 +66,7 @@ func ValidateStruct(data interface{}) []*InvalidField {
             if !has {
                 continue
             }
-            element.Field = structField.Tag.Get("json")
+            element.Field = structField.Tag.Get(fieldType)
             element.Tag = err.Tag()
             element.Value = err.Param()
             element.Error = strings.ReplaceAll(err.Translate(trans), err.Field(), element.Field)

@@ -20,5 +20,5 @@ func TestValidator(t *testing.T) {
         IsActive: &b,
         Email:    "",
     }
-    t.Log(web.ValidateStruct(user)[0])
+    t.Log(web.ValidateStructJson(user)[0])
 }

@@ -37,11 +37,11 @@ func (im *RespError) Error() string {
     return errMessage
 }
 
-// BadRequest 解析参数失败
-func BadRequest(oriErr error, message string) error {
+// ParseParamsError 解析参数失败
+func ParseParamsError(oriErr error, message string) error {
     return &RespError{
         Resp: Resp{
-            HttpStatus: fiber.ErrBadRequest.Code,
+            HttpStatus: fiber.ErrUnprocessableEntity.Code,
             Message:    message,
         },
         OriError: oriErr,
@@ -52,13 +52,14 @@ func BadRequest(oriErr error, message string) error {
 func ValidationFailed(field []*InvalidField) error {
     return &RespError{
         Resp: Resp{
-            HttpStatus: fiber.ErrUnprocessableEntity.Code,
+            HttpStatus: fiber.ErrBadRequest.Code,
             Message:    "表单输入有误",
         },
         Errors: field,
     }
 }
 
+// Unauthorized 无权限
 func Unauthorized(message string) error {
     return &RespError{
         Resp: Resp{
