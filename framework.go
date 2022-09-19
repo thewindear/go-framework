@@ -181,7 +181,10 @@ func ErrorHandler(components *Components) fiber.ErrorHandler {
         }
         ctxLog := components.GetLogWithContext(ctx.Context())
         if wrapError.HttpStatus >= fiber.StatusInternalServerError {
-            ctxLog.Info("server error stacks", zap.String("stacks", fmt.Sprintf("%+v", wrapError.OriError)))
+            errStackInfos := fmt.Sprintf("%+v", wrapError.Err)
+            if errStackInfos != wrapError.Err.Error() {
+                ctxLog.Info("server error stacks", zap.String("stacks", fmt.Sprintf("%+v", wrapError.Err)))
+            }
             ctxLog.Error("server error", zap.String("details", wrapError.Error()))
         } else {
             ctxLog.Info("logic error", zap.String("details", wrapError.Error()))

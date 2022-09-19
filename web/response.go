@@ -18,15 +18,15 @@ type Resp struct {
 
 type RespError struct {
     Resp
-    OriError error `json:"-"`
+    Err error `json:"-"`
     // Errors 更多的错误细节
     Errors interface{} `json:"errors,omitempty"`
 }
 
 func (im *RespError) Error() string {
     errMessage := fmt.Sprintf("response error: http_status %d", im.HttpStatus)
-    if im.OriError != nil {
-        errMessage += fmt.Sprintf("wrap error: %s", im.OriError.Error())
+    if im.Err != nil {
+        errMessage += fmt.Sprintf("wrap error: %s", im.Err.Error())
     }
     if im.Code != 0 {
         errMessage += fmt.Sprintf(" custom code: %d", im.Code)
@@ -44,7 +44,7 @@ func ParseParamsError(oriErr error, message string) error {
             HttpStatus: fiber.ErrUnprocessableEntity.Code,
             Message:    message,
         },
-        OriError: oriErr,
+        Err: oriErr,
     }
 }
 
@@ -75,7 +75,7 @@ func Error(oriErr error) *RespError {
             HttpStatus: fiber.ErrInternalServerError.Code,
             Message:    "服务异常,请稍后再试",
         },
-        OriError: oriErr,
+        Err: oriErr,
     }
 }
 
