@@ -2,10 +2,10 @@ package go_web_framework
 
 import (
     "context"
-    "errors"
     "fmt"
     "github.com/go-redis/redis/v8"
     "github.com/gofiber/fiber/v2"
+    "github.com/pkg/errors"
     "github.com/thewindear/go-web-framework/components"
     "github.com/thewindear/go-web-framework/etc"
     "github.com/thewindear/go-web-framework/web"
@@ -124,10 +124,10 @@ func DefaultInitCfg(cfgFile string) (*etc.Cfg, error) {
 func InitCfg[T any](cfgFile string, obj *T) error {
     content, err := os.ReadFile(cfgFile)
     if err != nil {
-        return fmt.Errorf("open config file fialure: %s", err)
+        return fmt.Errorf("framework: open config file fialure: %w", err)
     }
     if err = yaml.Unmarshal(content, &obj); err != nil {
-        return fmt.Errorf("initialize config failure: %s", err)
+        return fmt.Errorf("framework: initialize config failure: %w", err)
     }
     return nil
 }
@@ -180,7 +180,12 @@ func ErrorHandler(components *Components) fiber.ErrorHandler {
             wrapError = web.Error(err)
         }
         ctxLog := components.GetLogWithContext(ctx.Context())
-        ctxLog.Error("response error", zap.String("error details", wrapError.Error()))
+        if wrapError.HttpStatus >= fiber.StatusInternalServerError {
+            ctxLog.Info("server error stacks", zap.String("stacks", fmt.Sprintf("%+v", wrapError.OriError)))
+            ctxLog.Error("server error", zap.String("details", wrapError.Error()))
+        } else {
+            ctxLog.Info("logic error", zap.String("details", wrapError.Error()))
+        }
         return ctx.Status(wrapError.HttpStatus).JSON(wrapError)
     }
 }

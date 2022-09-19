@@ -22,7 +22,7 @@ func NewMysql(cfg *etc.Framework, log *zap.Logger) (*gorm.DB, error) {
     }
     db, err := gorm.Open(mysql.Open(cfg.Mysql.GenDSN()), gormCfg)
     if err != nil {
-        return nil, fmt.Errorf("components: connect mysql failure: %s", err)
+        return nil, fmt.Errorf("components: connect mysql failure: %w", err)
     }
     sqlDB, _ := db.DB()
     sqlDB.SetMaxIdleConns(cfg.Mysql.Idle)

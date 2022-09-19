@@ -101,7 +101,7 @@ func (o *OAuthGithub) request(req *http.Request, context context.Context) (map[s
     req.Header.Set("Accept", "application/vnd.github+json")
     resp, err := client.Do(req.WithContext(context))
     if err != nil {
-        return nil, err
+        return nil, fmt.Errorf("oauth2: github request error %w", err)
     }
     if resp.StatusCode != http.StatusOK {
         err = fmt.Errorf("oauth2: github request [%s] failure http code: %d", req.URL.String(), resp.StatusCode)
