@@ -16,6 +16,8 @@ import (
     "os"
 )
 
+var ErrWebConfigEmpty = errors.New("web config empty")
+
 func NewDefaultSvcContext(ctx context.Context, framework *Framework) *SvcContext {
     return &SvcContext{Ctx: ctx, Components: framework.GetComponents()}
 }
@@ -89,7 +91,8 @@ func (im *Framework) SetRouter(routeHandle func(app *fiber.App)) {
 
 func (im *Framework) Run() {
     defer im.shutdown()
-    log.Fatalf("listen server failure: %s", im.web.Listen(im.cfg.Web.ServerAddr))
+    err := im.web.Listen(im.cfg.Web.ServerAddr)
+    log.Fatalf("listen server failure: %s", err)
 }
 
 func (im *Framework) shutdown() {
@@ -141,7 +144,7 @@ func NewFramework(cfgFile string, cfg *etc.Framework) (*Framework, error) {
     }
     
     if cfg.Web == nil {
-        return nil, errors.New("web config is empty")
+        return nil, ErrWebConfigEmpty
     }
     framework := &Framework{Components: &Components{}}
     if cfg.Log != nil {
@@ -166,14 +169,15 @@ func NewFramework(cfgFile string, cfg *etc.Framework) (*Framework, error) {
 
 func ErrorHandler(components *Components) fiber.ErrorHandler {
     return func(ctx *fiber.Ctx, err error) error {
-        if err == nil {
-            return nil
-        }
         var wrapError *web.RespError
-        if tmpErr, ok := err.(*web.RespError); ok {
-            wrapError = tmpErr
-        } else {
-            wrapError = web.Error(tmpErr)
+        switch err := err.(type) {
+        case nil:
+            return nil
+        case *web.RespError:
+            wrapError = err
+            break
+        default:
+            wrapError = web.Error(err)
         }
         ctxLog := components.GetLogWithContext(ctx.Context())
         ctxLog.Error("response error", zap.String("error details", wrapError.Error()))

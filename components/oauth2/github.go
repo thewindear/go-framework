@@ -4,7 +4,7 @@ import (
     "context"
     "encoding/json"
     "fmt"
-    "io/ioutil"
+    "io"
     "net/http"
     "net/url"
     "time"
@@ -104,14 +104,14 @@ func (o *OAuthGithub) request(req *http.Request, context context.Context) (map[s
         return nil, err
     }
     if resp.StatusCode != http.StatusOK {
-        err = fmt.Errorf("request [%s] failure http code: %d", req.URL.String(), resp.StatusCode)
+        err = fmt.Errorf("oauth2: github request [%s] failure http code: %d", req.URL.String(), resp.StatusCode)
         return nil, err
     }
-    body, _ := ioutil.ReadAll(resp.Body)
+    body, _ := io.ReadAll(resp.Body)
     var tmp map[string]interface{}
     _ = json.Unmarshal(body, &tmp)
     if _, ok := tmp["error"]; ok {
-        err = fmt.Errorf("request [%s] failure error: %s reason: %s", req.URL.String(), tmp["error"], tmp["error_description"])
+        err = fmt.Errorf("oauth2: github request [%s] failure error: %s reason: %s", req.URL.String(), tmp["error"], tmp["error_description"])
         return nil, err
     }
     return tmp, nil

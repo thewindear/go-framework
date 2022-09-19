@@ -1,6 +1,7 @@
 package components
 
 import (
+    "fmt"
     "github.com/thewindear/go-web-framework/etc"
     "go.uber.org/zap"
     "gorm.io/driver/mysql"
@@ -21,7 +22,7 @@ func NewMysql(cfg *etc.Framework, log *zap.Logger) (*gorm.DB, error) {
     }
     db, err := gorm.Open(mysql.Open(cfg.Mysql.GenDSN()), gormCfg)
     if err != nil {
-        return nil, err
+        return nil, fmt.Errorf("components: connect mysql failure: %s", err)
     }
     sqlDB, _ := db.DB()
     sqlDB.SetMaxIdleConns(cfg.Mysql.Idle)
