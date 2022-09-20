@@ -3,12 +3,23 @@ package test
 import (
     "github.com/gofiber/fiber/v2"
     goWebFramework "github.com/thewindear/go-web-framework"
-    "github.com/thewindear/go-web-framework/etc"
+    "github.com/thewindear/go-web-framework/config"
     "go.uber.org/zap"
     "gorm.io/gorm"
     "log"
     "testing"
 )
+
+type Blog struct {
+    ID     uint   `gorm:"id" json:"ID"`
+    ShopId uint   `gorm:"shop_id" json:"shopId"`
+    Title  string `gorm:"title" json:"title"`
+    Images string `gorm:"images" json:"images"`
+}
+
+func (im Blog) TableName() string {
+    return "tb_blog"
+}
 
 type UserService struct {
     *goWebFramework.SvcContext
@@ -24,7 +35,7 @@ func (im UserService) GetBlog() *Blog {
 }
 
 func TestInitCfg(t *testing.T) {
-    c, err := goWebFramework.DefaultInitCfg("../config.template.yaml")
+    c, err := goWebFramework.DefaultInitCfg("../configs/config.template.yaml")
     if err != nil {
         t.Fatal(err)
     } else {
@@ -33,7 +44,7 @@ func TestInitCfg(t *testing.T) {
 }
 
 func TestFramework(t *testing.T) {
-    framework, err := goWebFramework.NewFramework("../config.template.yaml", nil)
+    framework, err := goWebFramework.NewFramework("../configs/config.template.yaml", nil)
     if err != nil {
         t.Fatal(err)
     } else {
@@ -52,12 +63,12 @@ func TestFramework(t *testing.T) {
 }
 
 type CustomConfig struct {
-    Username      string `json:"username"`
-    etc.Framework `json:"framework"`
+    Username         string `json:"username"`
+    config.Framework `json:"framework"`
 }
 
 func TestCustomConfig(t *testing.T) {
     var customConfig CustomConfig
-    _ = goWebFramework.InitCfg[CustomConfig]("../config.template.yaml", &customConfig)
+    _ = goWebFramework.InitCfg[CustomConfig]("../configs/config.template.yaml", &customConfig)
     log.Println(customConfig)
 }

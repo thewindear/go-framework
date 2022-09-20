@@ -5,12 +5,12 @@ import (
     "github.com/gofiber/fiber/v2"
     "github.com/gofiber/fiber/v2/middleware/limiter"
     "github.com/gofiber/fiber/v2/middleware/requestid"
-    "github.com/thewindear/go-web-framework/etc"
+    "github.com/thewindear/go-web-framework/config"
     "go.uber.org/zap"
     "time"
 )
 
-func NewWeb(cfg *etc.Framework, logger *zap.Logger) (*fiber.App, error) {
+func NewWeb(cfg *config.Framework, logger *zap.Logger) (*fiber.App, error) {
     fiberConfig := fiber.Config{
         ServerHeader: cfg.Web.GetServerHead(),
         Concurrency:  cfg.Web.MaxConcurrency,

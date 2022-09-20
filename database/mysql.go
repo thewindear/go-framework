@@ -1,22 +1,23 @@
-package components
+package database
 
 import (
     "fmt"
-    "github.com/thewindear/go-web-framework/etc"
+    "github.com/thewindear/go-web-framework/config"
+    log2 "github.com/thewindear/go-web-framework/log"
     "go.uber.org/zap"
     "gorm.io/driver/mysql"
     "gorm.io/gorm"
     "time"
 )
 
-func NewMysql(cfg *etc.Framework, log *zap.Logger) (*gorm.DB, error) {
+func NewMysql(cfg *config.Framework, log *zap.Logger) (*gorm.DB, error) {
     gormCfg := &gorm.Config{
         PrepareStmt: true,
         QueryFields: true,
     }
     if cfg.Log != nil && cfg.Mysql.Log {
-        zapGormLog := NewZapGormLog(log, cfg.Log.GetGormLogLevel(), cfg.Mysql.SlowSqlTime)
-        InitLoggerCtxFields(cfg.Web.CtxFields)
+        zapGormLog := log2.NewZapGormLog(log, cfg.Log.GetGormLogLevel(), cfg.Mysql.SlowSqlTime)
+        log2.InitLoggerCtxFields(cfg.Web.CtxFields)
         zapGormLog.SetAsDefault()
         gormCfg.Logger = zapGormLog
     }

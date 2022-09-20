@@ -1,8 +1,8 @@
-package components
+package log
 
 import (
     "fmt"
-    "github.com/thewindear/go-web-framework/etc"
+    "github.com/thewindear/go-web-framework/config"
     "go.uber.org/zap"
     "go.uber.org/zap/zapcore"
     "gopkg.in/natefinch/lumberjack.v2"
@@ -10,7 +10,7 @@ import (
     "time"
 )
 
-func NewLog(cfg *etc.Framework) *zap.Logger {
+func NewLog(cfg *config.Framework) *zap.Logger {
     encoderConfig := zapcore.EncoderConfig{
         MessageKey:     "msg",
         LevelKey:       "level",

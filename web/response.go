@@ -3,6 +3,7 @@ package web
 import (
     "fmt"
     "github.com/gofiber/fiber/v2"
+    "github.com/thewindear/go-web-framework/pkg"
 )
 
 type Resp struct {
@@ -21,6 +22,10 @@ type RespError struct {
     Err error `json:"-"`
     // Errors 更多的错误细节
     Errors interface{} `json:"errors,omitempty"`
+}
+
+func (im *RespError) Unwrap() error {
+    return im.Err
 }
 
 func (im *RespError) Error() string {
@@ -49,7 +54,7 @@ func ParseParamsError(oriErr error, message string) error {
 }
 
 // ValidationFailed 表单验证失败
-func ValidationFailed(field []*InvalidField) error {
+func ValidationFailed(field []*pkg.InvalidField) error {
     return &RespError{
         Resp: Resp{
             HttpStatus: fiber.ErrBadRequest.Code,

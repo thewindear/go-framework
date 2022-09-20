@@ -6,8 +6,9 @@ import (
     "github.com/go-redis/redis/v8"
     "github.com/gofiber/fiber/v2"
     "github.com/pkg/errors"
-    "github.com/thewindear/go-web-framework/components"
-    "github.com/thewindear/go-web-framework/etc"
+    "github.com/thewindear/go-web-framework/config"
+    "github.com/thewindear/go-web-framework/database"
+    log2 "github.com/thewindear/go-web-framework/log"
     "github.com/thewindear/go-web-framework/web"
     "go.uber.org/zap"
     "gopkg.in/yaml.v3"
@@ -40,13 +41,13 @@ func (im *SvcContext) RDB() *redis.Client {
 }
 
 type Components struct {
-    cfg   *etc.Framework
+    cfg   *config.Framework
     mysql *gorm.DB
     rdb   *redis.Client
     log   *zap.Logger
 }
 
-func (im *Components) GetCfg() *etc.Framework {
+func (im *Components) GetCfg() *config.Framework {
     return im.cfg
 }
 
@@ -112,8 +113,8 @@ func (im *Framework) shutdown() {
     log.Println("bye bye server shutdown...")
 }
 
-func DefaultInitCfg(cfgFile string) (*etc.Cfg, error) {
-    var cfg etc.Cfg
+func DefaultInitCfg(cfgFile string) (*config.Cfg, error) {
+    var cfg config.Cfg
     err := InitCfg(cfgFile, &cfg)
     if err != nil {
         return nil, err
@@ -132,11 +133,11 @@ func InitCfg[T any](cfgFile string, obj *T) error {
     return nil
 }
 
-func NewFramework(cfgFile string, cfg *etc.Framework) (*Framework, error) {
+func NewFramework(cfgFile string, cfg *config.Framework) (*Framework, error) {
     var err error
     if cfg == nil {
-        _cfg := &etc.Cfg{}
-        err = InitCfg[etc.Cfg](cfgFile, _cfg)
+        _cfg := &config.Cfg{}
+        err = InitCfg[config.Cfg](cfgFile, _cfg)
         if err != nil {
             return nil, err
         }
@@ -148,15 +149,15 @@ func NewFramework(cfgFile string, cfg *etc.Framework) (*Framework, error) {
     }
     framework := &Framework{Components: &Components{}}
     if cfg.Log != nil {
-        framework.log = components.NewLog(cfg)
+        framework.log = log2.NewLog(cfg)
     }
     if cfg.Mysql != nil {
-        if framework.mysql, err = components.NewMysql(cfg, framework.log); err != nil {
+        if framework.mysql, err = database.NewMysql(cfg, framework.log); err != nil {
             return nil, err
         }
     }
     if cfg.Redis != nil {
-        if framework.rdb, err = components.NewRedis(cfg); err != nil {
+        if framework.rdb, err = database.NewRedis(cfg); err != nil {
             return nil, err
         }
     }
@@ -183,7 +184,7 @@ func ErrorHandler(components *Components) fiber.ErrorHandler {
         if wrapError.HttpStatus >= fiber.StatusInternalServerError {
             errStackInfos := fmt.Sprintf("%+v", wrapError.Err)
             if errStackInfos != wrapError.Err.Error() {
-                ctxLog.Info("server error stacks", zap.String("stacks", fmt.Sprintf("%+v", wrapError.Err)))
+                ctxLog.Info("server error stacks", zap.String("stacks", errStackInfos))
             }
             ctxLog.Error("server error", zap.String("details", wrapError.Error()))
         } else {

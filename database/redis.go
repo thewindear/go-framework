@@ -1,11 +1,11 @@
-package components
+package database
 
 import (
     "github.com/go-redis/redis/v8"
-    "github.com/thewindear/go-web-framework/etc"
+    "github.com/thewindear/go-web-framework/config"
 )
 
-func NewRedis(cfg *etc.Framework) (*redis.Client, error) {
+func NewRedis(cfg *config.Framework) (*redis.Client, error) {
     option := &redis.Options{
         Addr: cfg.Redis.GenAddr(),
         DB:   cfg.Redis.DB,

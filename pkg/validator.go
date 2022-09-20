@@ -1,4 +1,4 @@
-package web
+package pkg
 
 import (
     "github.com/go-playground/locales/zh"

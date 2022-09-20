@@ -1,4 +1,4 @@
-package etc
+package config
 
 type Cfg struct {
     Framework *Framework `yaml:"framework"`
