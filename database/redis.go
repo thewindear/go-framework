@@ -2,7 +2,7 @@ package database
 
 import (
     "github.com/go-redis/redis/v8"
-    "github.com/thewindear/go-web-framework/config"
+    "github.com/thewindear/go-web-easy-kit/config"
 )
 
 func NewRedis(cfg *config.Framework) (*redis.Client, error) {

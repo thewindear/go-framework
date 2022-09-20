@@ -2,8 +2,8 @@ package test
 
 import (
     "github.com/gofiber/fiber/v2"
-    goWebFramework "github.com/thewindear/go-web-framework"
-    "github.com/thewindear/go-web-framework/config"
+    goWebFramework "github.com/thewindear/go-web-easy-kit"
+    "github.com/thewindear/go-web-easy-kit/config"
     "go.uber.org/zap"
     "gorm.io/gorm"
     "log"

@@ -1,4 +1,4 @@
-module github.com/thewindear/go-web-framework
+module github.com/thewindear/go-web-easy-kit
 
 go 1.19
 

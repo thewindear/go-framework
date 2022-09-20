@@ -5,7 +5,7 @@ import (
     "github.com/gofiber/fiber/v2"
     "github.com/gofiber/fiber/v2/middleware/limiter"
     "github.com/gofiber/fiber/v2/middleware/requestid"
-    "github.com/thewindear/go-web-framework/config"
+    "github.com/thewindear/go-web-easy-kit/config"
     "go.uber.org/zap"
     "time"
 )

@@ -2,7 +2,7 @@ package log
 
 import (
     "fmt"
-    "github.com/thewindear/go-web-framework/config"
+    "github.com/thewindear/go-web-easy-kit/config"
     "go.uber.org/zap"
     "go.uber.org/zap/zapcore"
     "gopkg.in/natefinch/lumberjack.v2"

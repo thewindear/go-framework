@@ -1,4 +1,4 @@
-package go_web_framework
+package go_web_easy_kit
 
 import (
     "context"
@@ -6,10 +6,10 @@ import (
     "github.com/go-redis/redis/v8"
     "github.com/gofiber/fiber/v2"
     "github.com/pkg/errors"
-    "github.com/thewindear/go-web-framework/config"
-    "github.com/thewindear/go-web-framework/database"
-    log2 "github.com/thewindear/go-web-framework/log"
-    "github.com/thewindear/go-web-framework/web"
+    "github.com/thewindear/go-web-easy-kit/config"
+    "github.com/thewindear/go-web-easy-kit/database"
+    log2 "github.com/thewindear/go-web-easy-kit/log"
+    "github.com/thewindear/go-web-easy-kit/web"
     "go.uber.org/zap"
     "gopkg.in/yaml.v3"
     "gorm.io/gorm"

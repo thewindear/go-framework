@@ -3,7 +3,7 @@ package web
 import (
     "fmt"
     "github.com/gofiber/fiber/v2"
-    "github.com/thewindear/go-web-framework/pkg"
+    "github.com/thewindear/go-web-easy-kit/pkg"
 )
 
 type Resp struct {

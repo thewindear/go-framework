@@ -2,8 +2,8 @@ package database
 
 import (
     "fmt"
-    "github.com/thewindear/go-web-framework/config"
-    log2 "github.com/thewindear/go-web-framework/log"
+    "github.com/thewindear/go-web-easy-kit/config"
+    log2 "github.com/thewindear/go-web-easy-kit/log"
     "go.uber.org/zap"
     "gorm.io/driver/mysql"
     "gorm.io/gorm"
