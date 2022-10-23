@@ -15,17 +15,27 @@ import (
     "gorm.io/gorm"
     "log"
     "os"
+    "os/signal"
+    "syscall"
 )
 
 var ErrWebConfigEmpty = errors.New("web config empty")
 
-func NewDefaultSvcContext(ctx context.Context, framework *Framework) *SvcContext {
-    return &SvcContext{Ctx: ctx, Components: framework.GetComponents()}
+func NewDefaultSvcContext(ctx context.Context, components *Components) *SvcContext {
+    return &SvcContext{Ctx: ctx, Components: components}
 }
 
 type SvcContext struct {
     Ctx context.Context
     *Components
+}
+
+func (im *SvcContext) GetOne(model interface{}, where string, values ...interface{}) error {
+    err := im.DB().Model(model).Where(where, values...).First(&model).Error
+    if err != nil {
+        return err
+    }
+    return nil
 }
 
 func (im *SvcContext) DB() *gorm.DB {
@@ -41,14 +51,18 @@ func (im *SvcContext) RDB() *redis.Client {
 }
 
 type Components struct {
-    cfg   *config.Framework
+    cfg   *config.Cfg
     mysql *gorm.DB
     rdb   *redis.Client
     log   *zap.Logger
 }
 
+func (im *Components) MakeSvc(ctx context.Context) *SvcContext {
+    return NewDefaultSvcContext(ctx, im)
+}
+
 func (im *Components) GetCfg() *config.Framework {
-    return im.cfg
+    return im.cfg.Framework
 }
 
 func (im *Components) GetDBWithContext(ctx context.Context) *gorm.DB {
@@ -56,9 +70,9 @@ func (im *Components) GetDBWithContext(ctx context.Context) *gorm.DB {
 }
 
 func (im *Components) GetLogWithContext(ctx context.Context) *zap.Logger {
-    if im.cfg.Web.CtxFields != nil && len(im.cfg.Web.CtxFields) > 0 {
+    if im.cfg.Framework.Web.CtxFields != nil && len(im.cfg.Framework.Web.CtxFields) > 0 {
         var fields []zap.Field
-        for _, key := range im.cfg.Web.CtxFields {
+        for _, key := range im.cfg.Framework.Web.CtxFields {
             val := ctx.Value(key)
             if val != nil {
                 fields = append(fields, zap.String(key, fmt.Sprintf("%s", val)))
@@ -86,14 +100,25 @@ func (im *Framework) GetWeb() *fiber.App {
     return im.web
 }
 
-func (im *Framework) SetRouter(routeHandle func(app *fiber.App)) {
-    routeHandle(im.web)
+func (im *Framework) SetHandles(handleEntry func(route fiber.Router, components *Components)) {
+    handleEntry(im.web, im.Components)
 }
 
 func (im *Framework) Run() {
-    defer im.shutdown()
-    err := im.web.Listen(im.cfg.Web.ServerAddr)
-    log.Fatalf("listen server failure: %s", err)
+    go func() {
+        err := im.web.Listen(im.cfg.Framework.Web.ServerAddr)
+        if err != nil {
+            log.Fatalf("listen server failure: %s", err)
+        }
+    }()
+    ch := make(chan os.Signal, 1)
+    signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
+    _ = <-ch
+    log.Println("Gracefully shutting downing...")
+    _ = im.web.Shutdown()
+    log.Println("Running close task...")
+    im.shutdown()
+    log.Println("bye bye server shutdown...")
 }
 
 func (im *Framework) shutdown() {
@@ -105,12 +130,11 @@ func (im *Framework) shutdown() {
     if err = im.rdb.Close(); err != nil {
         im.log.Error("close redis error: " + err.Error())
     }
-    if im.cfg.Log != nil && im.cfg.Log.FileName != "" {
+    if im.cfg.Framework.Log != nil && im.cfg.Framework.Log.FileName != "" {
         if err = im.log.Sync(); err != nil {
             im.log.Error("sync log file error: " + err.Error())
         }
     }
-    log.Println("bye bye server shutdown...")
 }
 
 func DefaultInitCfg(cfgFile string) (*config.Cfg, error) {
@@ -133,38 +157,32 @@ func InitCfg[T any](cfgFile string, obj *T) error {
     return nil
 }
 
-func NewFramework(cfgFile string, cfg *config.Framework) (*Framework, error) {
+func NewFramework(cfgFile string) (*Framework, error) {
     var err error
-    if cfg == nil {
-        _cfg := &config.Cfg{}
-        err = InitCfg[config.Cfg](cfgFile, _cfg)
-        if err != nil {
-            return nil, err
-        }
-        cfg = _cfg.Framework
-    }
+    var cfg config.Cfg
+    err = InitCfg[config.Cfg](cfgFile, &cfg)
     
-    if cfg.Web == nil {
+    if cfg.Framework.Web == nil {
         return nil, ErrWebConfigEmpty
     }
     framework := &Framework{Components: &Components{}}
-    if cfg.Log != nil {
-        framework.log = log2.NewLog(cfg)
+    if cfg.Framework.Log != nil {
+        framework.log = log2.NewLog(cfg.Framework)
     }
-    if cfg.Mysql != nil {
-        if framework.mysql, err = database.NewMysql(cfg, framework.log); err != nil {
+    if cfg.Framework.Mysql != nil {
+        if framework.mysql, err = database.NewMysql(cfg.Framework, framework.log); err != nil {
             return nil, err
         }
     }
-    if cfg.Redis != nil {
-        if framework.rdb, err = database.NewRedis(cfg); err != nil {
+    if cfg.Framework.Redis != nil {
+        if framework.rdb, err = database.NewRedis(cfg.Framework); err != nil {
             return nil, err
         }
     }
-    if framework.web, err = web.NewWeb(cfg, framework.log); err != nil {
+    if framework.web, err = web.NewWeb(cfg.Framework, framework.log); err != nil {
         return nil, err
     }
-    framework.cfg = cfg
+    framework.cfg = &cfg
     return framework, nil
 }
 

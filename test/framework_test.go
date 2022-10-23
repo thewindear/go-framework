@@ -44,13 +44,13 @@ func TestInitCfg(t *testing.T) {
 }
 
 func TestFramework(t *testing.T) {
-    framework, err := goWebFramework.NewFramework("../configs/config.template.yaml", nil)
+    framework, err := goWebFramework.NewFramework("../configs/config.template.yaml")
     if err != nil {
         t.Fatal(err)
     } else {
-        framework.SetRouter(func(app *fiber.App) {
-            app.Get("/", func(ctx *fiber.Ctx) error {
-                userService := &UserService{goWebFramework.NewDefaultSvcContext(ctx.Context(), framework)}
+        framework.SetHandles(func(route fiber.Router, components *goWebFramework.Components) {
+            route.Get("/", func(ctx *fiber.Ctx) error {
+                userService := &UserService{goWebFramework.NewDefaultSvcContext(ctx.Context(), components)}
                 blog := userService.GetBlog()
                 if blog == nil {
                     return ctx.SendStatus(404)
@@ -62,13 +62,9 @@ func TestFramework(t *testing.T) {
     }
 }
 
-type CustomConfig struct {
-    Username         string `json:"username"`
-    config.Framework `json:"framework"`
-}
-
 func TestCustomConfig(t *testing.T) {
-    var customConfig CustomConfig
-    _ = goWebFramework.InitCfg[CustomConfig]("../configs/config.template.yaml", &customConfig)
-    log.Println(customConfig)
+    var customConfig config.Cfg
+    _ = goWebFramework.InitCfg("../configs/config.template.yaml", &customConfig)
+    val := customConfig.GetAppCfg("name", "val").(string)
+    log.Println(val)
 }

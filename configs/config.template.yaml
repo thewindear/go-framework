@@ -1,3 +1,6 @@
+application:
+  key: value
+  name: "myName"
 framework:
   web:
     env: "dev"
@@ -23,6 +26,11 @@ framework:
         - "queryParams"
     ctxFields:
       - requestId
+  jwt:
+    head: "Authorization"
+    type: "Bearer"
+    salt: "abcdefg"
+    expires: 86400
 
   mysql:
     host: "localhost"
