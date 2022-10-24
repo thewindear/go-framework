@@ -32,10 +32,12 @@ type SvcContext struct {
 
 func (im *SvcContext) GetOne(model interface{}, where string, values ...interface{}) error {
     err := im.DB().Model(model).Where(where, values...).First(&model).Error
-    if err != nil {
-        return err
-    }
-    return nil
+    return err
+}
+
+func (im *SvcContext) GetList(model interface{}, where string, values ...interface{}) error {
+    err := im.DB().Model(model).Where(where, values...).Find(&model).Error
+    return err
 }
 
 func (im *SvcContext) DB() *gorm.DB {
@@ -61,8 +63,12 @@ func (im *Components) MakeSvc(ctx context.Context) *SvcContext {
     return NewDefaultSvcContext(ctx, im)
 }
 
-func (im *Components) GetCfg() *config.Framework {
+func (im *Components) GetCFk() *config.Framework {
     return im.cfg.Framework
+}
+
+func (im *Components) GetCfg() *config.Cfg {
+    return im.cfg
 }
 
 func (im *Components) GetDBWithContext(ctx context.Context) *gorm.DB {

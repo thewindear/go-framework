@@ -12,8 +12,9 @@ import (
 
 func NewMysql(cfg *config.Framework, log *zap.Logger) (*gorm.DB, error) {
     gormCfg := &gorm.Config{
-        PrepareStmt: true,
-        QueryFields: true,
+        DisableForeignKeyConstraintWhenMigrating: true,
+        PrepareStmt:                              true,
+        QueryFields:                              true,
     }
     if cfg.Log != nil && cfg.Mysql.Log {
         zapGormLog := log2.NewZapGormLog(log, cfg.Log.GetGormLogLevel(), cfg.Mysql.SlowSqlTime)
